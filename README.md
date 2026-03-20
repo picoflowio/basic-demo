@@ -1,74 +1,61 @@
 ## Description
-This the a non-trivial demonstration project how to use picoflow, the Conversational Agentic flow.
-This is a Hotel reservation using Purposeful Chatbot mechanism for Hilton Hotels.
+This repo is a comprehensive set of agentic flow patterns built with **picoflow Agentic Flow**. The included `BasicFlow` showcases step orchestration, scoped memories, model routing, prompt-driven logic blocks, and concurrent fan-out spawning—intended as a starting point for your own production flows rather than the old hotel-reservation demo.
 
-We have also created a simulation of pricing engine that takes into considerations of weekends, holidays, months, etc.
+## What's inside
+- NestJS API (`/ai/run`, `/ai/end`) wrapped around picoflow `FlowEngine`.
+- `BasicFlow` illustrating: multi-model selection, shared vs. isolated memories, in-context prompt steps, conditional/personalized branches (e.g., `config.isPresident`), and concurrent batches via `spawnSteps`.
+- Swagger UI auto-generated at http://localhost:8000/api for quick exploration.
 
-## Project setup
+## Quick start
 ```bash
-$ yarn install
+yarn install
+cp .env-example .env   # fill in keys below
 ```
 
-## Document DB setup
-In order to run this project, you need to decide to use a MongoDB or a CosmoDB.
-Both have support locally or in the Cloud.
-
-Create 2 collections for your document DB:
+### Environment variables
+Fill these in `.env` (see `.env-example`):
 ```text
-hotels
-sessions
-```
-
-Upload a hotel database 
-```text
-hotels-cosmo.json (for Cosmo) 
-hotels-mongo.json (for Mongo)
-```
-
-These two json files are under `src/myflow/hotel-flow/data`
-
-
-## Compile and run the project
-```bash
-# development
-$ yarn start
-```
-
-
-## License Key
-Get a trial license key by email to `dev@picoflow.io`
-
-# Environment variables:
-.env.example - Copy to .env and fill in values
-
-```text
-PICOFLOW_KEY=
-GEMINI_KEY=
+PICOFLOW_KEY=          # request a trial at dev@picoflow.io
 OPENAI_KEY=
+GEMINI_KEY=
 ANTHROPIC_KEY=
 
 LLM_RETRY=3
 LLM_TEMPERATURE=0.2
 SESSION_EXPIRATION=50000
 
-DOCUMENT_DB=COSMO
-# DOCUMENT_DB=MONGO
-
-COSMODB_KEY=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnZ0a==
+DOCUMENT_DB=COSMO      # or set to MONGO
+COSMODB_KEY=...
 COSMODB_URL=http://localhost:8081/
 COSMODB_ID=picoflow
 COSMODB_SESSION_ID=sessions
 
-#MONGODB_NAME=picoflow
-#MONGODB_COLLECTION=sessions
-#MONGODB_URL=mongodb://localhost:27017/?directConnection=true
+MONGODB_NAME=picoflow
+MONGODB_COLLECTION=sessions
+MONGODB_URL=mongodb://localhost:27017/?directConnection=true
 ```
+Choose either Cosmos DB (emulator or cloud) or MongoDB for session/document storage.
 
-## Endpoints
-You can go to http://localhost:8000/api#/ai/ChatController_run
+## Run
+```bash
+# watch mode for development
+yarn start:dev
 
-Each turn, you want to take the `CHAT_SESSION_ID` from the response header and use that in the request header for next turn.
+# or build then run compiled output
+yarn start
+```
+The API listens on `http://0.0.0.0:8000`.
 
-Leave `CHAT_SESSION_ID` blank when you make the first call. A new session and ID will be created and returned. 
+## Calling the flow
+- `POST /ai/run` with body:
+  ```json
+  { "flowName": "BasicFlow", "message": "<user text>", "config": { "isPresident": false } }
+  ```
+  Include `CHAT_SESSION_ID` header on subsequent turns; omit it on the first call to have one created for you (returned in the response headers).
+- `POST /ai/end` ends a session; requires the same `CHAT_SESSION_ID`.
 
+## Where to look next
+- `src/myflow/basic-flow/basic-flow.ts` — step wiring, model usage, concurrent spawning.
+- `src/myflow/basic-flow/prompt/*` — prompt and in-context assets used by the flow.
+- `src/controllers/chat-controller.ts` — API surface and flow registration.
 
