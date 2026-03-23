@@ -10,7 +10,13 @@ import { z } from 'zod';
 
 import { ValidateAddress } from 'src/myflow/basic-flow/validators/address-validator';
 import { DemoPrompt } from './prompt/demo-prompt';
-import { Step, Flow, ToolType, ToolResponseType, EndStep } from '@picoflow/core';
+import {
+  Step,
+  Flow,
+  ToolType,
+  ToolResponseType,
+  EndStep,
+} from '@picoflow/core';
 
 export class AddressStep extends Step {
   constructor(flow: Flow, isActive?: boolean) {
